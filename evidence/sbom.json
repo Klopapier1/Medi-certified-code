@@ -1,0 +1,18 @@
+{
+  "bomFormat": "custom-minimal",
+  "specVersion": "mvp-0.1",
+  "component": {
+    "name": "bmi",
+    "path": "src/bmi.py",
+    "language": "python",
+    "pythonVersion": "3.11.15"
+  },
+  "runtimeDependencies": [],
+  "note": "src/bmi.py imports only the Python standard library (dataclasses). No third-party runtime dependencies to track for this pilot item.",
+  "devDependencies": [
+    { "name": "pytest", "version": "9.1.1", "purpose": "test execution" },
+    { "name": "pytest-cov", "version": "7.1.0", "purpose": "coverage measurement" },
+    { "name": "ruff", "version": "0.15.8", "purpose": "static lint analysis" },
+    { "name": "mypy", "version": "1.19.1", "purpose": "static type analysis" }
+  ]
+}

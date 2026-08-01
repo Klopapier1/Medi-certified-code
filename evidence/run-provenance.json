@@ -1,0 +1,30 @@
+{
+  "pipelineRun": {
+    "date": "2026-08-01",
+    "mode": "manual-orchestration",
+    "note": "MVP proof-of-concept: an automated multi-stage agent pipeline (Claude Agent SDK) has not been built yet. For this pilot, the same 8 role/stages were carried out sequentially by Claude Code (model: claude-sonnet-5) acting as each agent in turn, within one session, with real tool execution (pytest, ruff, mypy) used for every verification stage instead of self-reported results.",
+    "item": "bmi module (IEC 62304 Class A pilot)"
+  },
+  "stages": [
+    { "stage": "requirements", "agent_role": "Requirements Agent", "output": "requirements/SRS.md", "verification": "human-readable, no automated check" },
+    { "stage": "design", "agent_role": "Design Agent", "output": "design/SDD.md", "verification": "human-readable, no automated check" },
+    { "stage": "code_generation", "agent_role": "Code Generation Agent", "output": "src/bmi.py", "verification": "none at generation time; verified in later stages" },
+    { "stage": "static_analysis", "agent_role": "Static Analysis Agent", "output": "evidence/static-analysis-report.md", "verification": "real subprocess execution: ruff 0.15.8, mypy 1.19.1 (strict)", "result": "0 findings" },
+    { "stage": "testing", "agent_role": "Test Agent", "output": "evidence/test-report.md", "verification": "real subprocess execution: pytest 9.1.1 + pytest-cov 7.1.0", "result": "23 passed, 0 failed, 100% statement coverage" },
+    { "stage": "risk_analysis", "agent_role": "Risk Analysis Agent", "output": "evidence/risk-table.md", "verification": "human-readable, no automated check" },
+    { "stage": "evidence_compilation", "agent_role": "Evidence Compiler", "output": "evidence/traceability-matrix.md", "verification": "grep-verified REQ-*/D-* ID cross-references across all artifacts" },
+    { "stage": "human_gate", "agent_role": "Human Gate", "output": "evidence/review-signoff.md", "verification": "pending — requires human signature, not auto-completed" }
+  ],
+  "toolVersions": {
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "pytest-cov": "7.1.0",
+    "ruff": "0.15.8",
+    "mypy": "1.19.1"
+  },
+  "limitations": [
+    "This run was orchestrated manually within a single Claude Code session, not by a standalone automated pipeline script.",
+    "No claim of regulatory certification or submission-readiness is made by this provenance record.",
+    "RISK-005 in evidence/risk-table.md is explicitly left open — see that file."
+  ]
+}
