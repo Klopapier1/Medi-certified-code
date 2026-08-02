@@ -1,13 +1,28 @@
-"""CLI entrypoint: python -m orchestrator.cli --name ... --requirement ... --output-dir ..."""
+"""CLI entrypoint: python -m orchestrator.cli --name ... --requirement ... --output-dir ...
+
+Reads ANTHROPIC_API_KEY from the environment (see orchestrator/client.py).
+If a `.env` file exists in the working directory and python-dotenv is
+installed, it's loaded automatically so ANTHROPIC_API_KEY/ORCHESTRATOR_MODEL
+can live there instead of the shell environment. Both are optional - this
+never overrides variables already set in the environment.
+"""
 
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
 from .config import ProductSpec
 from .pipeline import Pipeline
+
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()  # no-op if there's no .env file; never overrides existing env vars
+except ImportError:
+    pass
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,8 +52,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--model",
-        default="claude-sonnet-5",
-        help="Claude model id to use for the generative stages",
+        default=os.environ.get("ORCHESTRATOR_MODEL", "claude-sonnet-5"),
+        help="Claude model id to use for the generative stages "
+        "(default: $ORCHESTRATOR_MODEL, falling back to 'claude-sonnet-5')",
     )
     args = parser.parse_args(argv)
 
