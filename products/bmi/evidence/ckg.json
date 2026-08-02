@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "REQ-001",
+      "type": "Requirement",
+      "label": "BMI calculation"
+    },
+    {
+      "id": "REQ-002",
+      "type": "Requirement",
+      "label": "Input validation (non-positive / non-numeric)"
+    },
+    {
+      "id": "REQ-003",
+      "type": "Requirement",
+      "label": "BMI categorization"
+    },
+    {
+      "id": "REQ-004",
+      "type": "Requirement",
+      "label": "Plausibility bounds (unit-confusion guard)"
+    },
+    {
+      "id": "D-01",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "D-02",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "D-03",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "D-04",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "D-05",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "D-06",
+      "type": "DesignElement",
+      "label": ""
+    },
+    {
+      "id": "code:bmi",
+      "type": "CodeArtifact",
+      "label": "src/bmi.py"
+    },
+    {
+      "id": "test:TestREQ001Calculation",
+      "type": "TestCase",
+      "label": "TestREQ001Calculation"
+    },
+    {
+      "id": "test:TestREQ002InputValidation",
+      "type": "TestCase",
+      "label": "TestREQ002InputValidation"
+    },
+    {
+      "id": "test:TestREQ003Categorization",
+      "type": "TestCase",
+      "label": "TestREQ003Categorization"
+    },
+    {
+      "id": "test:TestREQ004PlausibilityBounds",
+      "type": "TestCase",
+      "label": "TestREQ004PlausibilityBounds"
+    },
+    {
+      "id": "RISK-001",
+      "type": "RiskRow",
+      "label": ""
+    },
+    {
+      "id": "RISK-002",
+      "type": "RiskRow",
+      "label": ""
+    },
+    {
+      "id": "RISK-003",
+      "type": "RiskRow",
+      "label": ""
+    },
+    {
+      "id": "RISK-004",
+      "type": "RiskRow",
+      "label": ""
+    },
+    {
+      "id": "RISK-005",
+      "type": "RiskRow",
+      "label": ""
+    },
+    {
+      "id": "evidence:static-analysis-report.md",
+      "type": "EvidenceArtifact",
+      "label": "static-analysis-report.md"
+    },
+    {
+      "id": "evidence:test-report.md",
+      "type": "EvidenceArtifact",
+      "label": "test-report.md"
+    },
+    {
+      "id": "evidence:run-provenance.json",
+      "type": "EvidenceArtifact",
+      "label": "run-provenance.json"
+    },
+    {
+      "id": "evidence:sbom.json",
+      "type": "EvidenceArtifact",
+      "label": "sbom.json"
+    },
+    {
+      "id": "evidence:review-signoff.md",
+      "type": "EvidenceArtifact",
+      "label": "review-signoff.md"
+    }
+  ],
+  "edges": [
+    {
+      "source": "D-01",
+      "target": "REQ-002",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-02",
+      "target": "REQ-004",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-03",
+      "target": "REQ-002",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-04",
+      "target": "REQ-001",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-05",
+      "target": "REQ-003",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-06",
+      "target": "REQ-001",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "D-06",
+      "target": "REQ-003",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "code:bmi",
+      "target": "REQ-003",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "code:bmi",
+      "target": "REQ-001",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "code:bmi",
+      "target": "REQ-004",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "code:bmi",
+      "target": "REQ-002",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "source": "test:TestREQ001Calculation",
+      "target": "REQ-001",
+      "type": "VERIFIED_BY"
+    },
+    {
+      "source": "test:TestREQ002InputValidation",
+      "target": "REQ-002",
+      "type": "VERIFIED_BY"
+    },
+    {
+      "source": "test:TestREQ003Categorization",
+      "target": "REQ-003",
+      "type": "VERIFIED_BY"
+    },
+    {
+      "source": "test:TestREQ004PlausibilityBounds",
+      "target": "REQ-004",
+      "type": "VERIFIED_BY"
+    },
+    {
+      "source": "RISK-001",
+      "target": "REQ-004",
+      "type": "MITIGATES"
+    },
+    {
+      "source": "RISK-002",
+      "target": "REQ-002",
+      "type": "MITIGATES"
+    },
+    {
+      "source": "RISK-003",
+      "target": "REQ-003",
+      "type": "MITIGATES"
+    },
+    {
+      "source": "RISK-004",
+      "target": "D-01",
+      "type": "MITIGATES"
+    }
+  ],
+  "coverage": {
+    "srs": [
+      "REQ-001",
+      "REQ-002",
+      "REQ-003",
+      "REQ-004"
+    ],
+    "sdd": [
+      "REQ-001",
+      "REQ-002",
+      "REQ-003",
+      "REQ-004"
+    ],
+    "code": [
+      "REQ-001",
+      "REQ-002",
+      "REQ-003",
+      "REQ-004"
+    ],
+    "tests": [
+      "REQ-001",
+      "REQ-002",
+      "REQ-003",
+      "REQ-004"
+    ],
+    "risk": [
+      "REQ-002",
+      "REQ-003",
+      "REQ-004"
+    ]
+  }
+}

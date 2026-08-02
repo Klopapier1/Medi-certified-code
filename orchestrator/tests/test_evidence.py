@@ -36,10 +36,16 @@ def test_traceability_matrix_flags_a_missing_requirement(tmp_path):
     (product / "tests").mkdir()
     (product / "evidence").mkdir()
 
-    (product / "requirements" / "SRS.md").write_text("### REQ-001 — thing\n### REQ-002 — other\n")
-    (product / "design" / "SDD.md").write_text("D-01 traces to REQ-001\n")  # REQ-002 missing
-    (product / "src" / "widget.py").write_text("# REQ-001\n# REQ-002\n")
-    (product / "tests" / "test_widget.py").write_text("# REQ-001\n")  # REQ-002 missing
+    (product / "requirements" / "SRS.md").write_text(
+        "### REQ-001 — thing\n### REQ-002 — other\n", encoding="utf-8"
+    )
+    (product / "design" / "SDD.md").write_text(
+        "D-01 traces to REQ-001\n", encoding="utf-8"
+    )  # REQ-002 missing
+    (product / "src" / "widget.py").write_text("# REQ-001\n# REQ-002\n", encoding="utf-8")
+    (product / "tests" / "test_widget.py").write_text(
+        "# REQ-001\n", encoding="utf-8"
+    )  # REQ-002 missing
 
     matrix = evidence.build_traceability_matrix(product, "widget")
     assert "**Gap:**" in matrix

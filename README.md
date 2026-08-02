@@ -51,12 +51,17 @@ Given a plain-language description of one software item, the pipeline runs eight
 │  roles.py    — prompt templates│        │  src/<name>.py                  │
 │  tools.py    — pytest/ruff/mypy│        │  tests/test_<name>.py           │
 │  evidence.py — traceability   │        │  evidence/*.md, *.json          │
+│  ckg.py      — knowledge graph│        │    (incl. ckg.json)             │
+│  ckg_cli.py  — graph queries  │        │                                │
+│  incremental.py — partial regen│       │                                │
 │  pipeline.py — the 8 stages   │        │                                │
 │  cli.py      — entrypoint     │        │                                │
 └─────────────────────────────┘        └──────────────────────────────┘
 ```
 
 The framework never imports from or references `products/`; a product directory never contains framework code. Deleting any one product doesn't affect the framework or any other product.
+
+**Certification Knowledge Graph (Phase 2).** `evidence.build_traceability_matrix()` is built from an explicit graph (`orchestrator/ckg.py`) of Requirement/DesignElement/CodeArtifact/TestCase/RiskRow/EvidenceArtifact nodes rather than an ad hoc regex diff, while producing byte-identical Markdown output. The graph also powers change impact analysis, a CLI graph explorer, and incremental regeneration — see [`docs/phase2-ckg.md`](docs/phase2-ckg.md) and `python -m orchestrator.ckg_cli --help`.
 
 ## Installation
 
@@ -92,6 +97,9 @@ python3 -m orchestrator.cli \
 Done. Evidence package written to products/bmi
 Reminder: nothing here is final until a human completes products/bmi/evidence/review-signoff.md
 ```
+
+A ready-to-run example of this same command, with its input already filled
+in, lives in [`demo/`](demo/) — see [`demo/README.md`](demo/README.md).
 
 ## Input
 
@@ -130,6 +138,7 @@ products/<name>/
     ├── risk-table.md                  # ISO 14971–informed hazard table
     ├── traceability-matrix.md         # REQ-*/D-* cross-reference, mechanically compiled
     ├── run-provenance.json            # model, timestamps, per-stage verification method
+    ├── ckg.json                       # Certification Knowledge Graph snapshot (nodes/edges)
     └── review-signoff.md              # blank human sign-off template — the mandatory gate
 ```
 
@@ -137,7 +146,8 @@ products/<name>/
 |---|---|---|
 | `static-analysis-report.md` | `ruff check`, `mypy --strict` | Real subprocess execution against the generated code |
 | `test-report.md` | `pytest` + `pytest-cov` | Real subprocess execution against LLM-generated tests |
-| `traceability-matrix.md` | `orchestrator/evidence.py` | Regex scan of `REQ-*`/`D-*` IDs across every artifact file |
+| `traceability-matrix.md` | `orchestrator/ckg.py` (via `orchestrator/evidence.py`) | Rendered from the Certification Knowledge Graph, itself built from a `REQ-*`/`D-*`/`RISK-*` scan across every artifact file |
+| `ckg.json` | `orchestrator/ckg.py` | Serialized graph (nodes/edges/coverage) — see [`docs/phase2-ckg.md`](docs/phase2-ckg.md) |
 | `run-provenance.json` | `orchestrator/evidence.py` | Records model id, date, and each stage's verification method |
 | `review-signoff.md` | Pipeline (template only) | Not verifiable by the pipeline — requires an actual human |
 
@@ -149,7 +159,10 @@ orchestrator/            the pipeline engine (product-agnostic)
 ├── client.py                thin Claude API wrapper, reads ANTHROPIC_API_KEY
 ├── roles.py                 prompt templates for each generative stage
 ├── tools.py                  real pytest/ruff/mypy subprocess wrappers
-├── evidence.py               traceability matrix + provenance, regex-based
+├── evidence.py               traceability matrix + provenance, now graph-backed (see ckg.py)
+├── ckg.py                     Certification Knowledge Graph: nodes/edges + graph construction
+├── ckg_cli.py                  graph queries: impact / explore / show / regenerate
+├── incremental.py              partial pipeline re-runs driven by the graph
 ├── pipeline.py                the 8-stage Pipeline class
 ├── cli.py                     CLI entrypoint, loads .env if present
 ├── requirements.txt           anthropic, python-dotenv
@@ -157,8 +170,11 @@ orchestrator/            the pipeline engine (product-agnostic)
 
 products/<name>/          one software item's pipeline output (see Output above)
 
+demo/                     ready-to-run example input (see demo/README.md)
+
 docs/
-└── mvp-scope.md            MVP scope, rationale, and open questions
+├── mvp-scope.md            MVP scope, rationale, and open questions
+└── phase2-ckg.md            Certification Knowledge Graph data model reference
 
 requirements-dev.txt      shared dev tooling versions used to verify any product
 .env.example               template for local ANTHROPIC_API_KEY / ORCHESTRATOR_MODEL

@@ -13,9 +13,11 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 REQ_PATTERN = re.compile(r"REQ-\d+")
 DESIGN_PATTERN = re.compile(r"D-\d+")
+RISK_PATTERN = re.compile(r"RISK-\d+")
 
 
 def extract_ids(text: str, pattern: re.Pattern[str]) -> set[str]:
@@ -25,7 +27,7 @@ def extract_ids(text: str, pattern: re.Pattern[str]) -> set[str]:
 def _ids_in_file(path: Path, pattern: re.Pattern[str]) -> set[str]:
     if not path.exists():
         return set()
-    return extract_ids(path.read_text(), pattern)
+    return extract_ids(path.read_text(encoding="utf-8"), pattern)
 
 
 @dataclass(frozen=True)
@@ -55,68 +57,21 @@ class ProductPaths:
 
 
 def build_traceability_matrix(product_dir: Path, module_name: str) -> str:
-    paths = ProductPaths(product_dir, module_name)
+    """Renders the traceability matrix by building the Certification Knowledge
+    Graph (orchestrator/ckg.py) and projecting it to Markdown. Kept in this
+    module (rather than moved wholesale to ckg.py) since it's the pipeline's
+    long-standing public entry point; the implementation now lives in
+    ckg.render_traceability_matrix, sourced from graph.coverage — a whole-file
+    REQ-* scan per stage using the exact same primitives as before
+    (_ids_in_file/REQ_PATTERN), so output is unchanged.
 
-    req_ids_by_stage = {
-        "srs": _ids_in_file(paths.srs, REQ_PATTERN),
-        "sdd": _ids_in_file(paths.sdd, REQ_PATTERN),
-        "code": _ids_in_file(paths.code, REQ_PATTERN),
-        "tests": _ids_in_file(paths.tests, REQ_PATTERN),
-        "risk": _ids_in_file(paths.risk_table, REQ_PATTERN),
-    }
-    all_reqs = sorted(req_ids_by_stage["srs"], key=lambda r: int(r.split("-")[1]))
+    Imported lazily to avoid a circular import: ckg.py imports the ID-pattern
+    primitives from this module at load time.
+    """
+    from . import ckg as ckg_module
 
-    orphans = {
-        stage: sorted(ids - req_ids_by_stage["srs"], key=lambda r: int(r.split("-")[1]))
-        for stage, ids in req_ids_by_stage.items()
-        if stage != "srs" and (ids - req_ids_by_stage["srs"])
-    }
-
-    lines = [
-        f"# Traceability Matrix — `{module_name}` module\n",
-        "Auto-compiled by `orchestrator/evidence.py` by scanning REQ-* IDs "
-        "present in each artifact file. Not asserted by the generating agent.\n",
-        "| Requirement | In SDD | In code | In tests | In risk table |",
-        "|---|---|---|---|---|",
-    ]
-    for req in all_reqs:
-        lines.append(
-            f"| {req} "
-            f"| {'yes' if req in req_ids_by_stage['sdd'] else '**MISSING**'} "
-            f"| {'yes' if req in req_ids_by_stage['code'] else '**MISSING**'} "
-            f"| {'yes' if req in req_ids_by_stage['tests'] else '**MISSING**'} "
-            f"| {'yes' if req in req_ids_by_stage['risk'] else 'not referenced'} |"
-        )
-
-    lines.append("\n## Coverage check\n")
-    if not all_reqs:
-        lines.append("- No REQ-* IDs found in `requirements/SRS.md`.")
-    else:
-        missing_anywhere = [
-            req
-            for req in all_reqs
-            if req not in req_ids_by_stage["sdd"]
-            or req not in req_ids_by_stage["code"]
-            or req not in req_ids_by_stage["tests"]
-        ]
-        if missing_anywhere:
-            lines.append(
-                "- **Gap:** requirement(s) missing from at least one "
-                f"downstream artifact: {', '.join(missing_anywhere)}"
-            )
-        else:
-            lines.append(
-                "- Every requirement in SRS.md has a matching design "
-                "reference, code reference, and test reference."
-            )
-
-    for stage, ids in orphans.items():
-        lines.append(
-            f"- **Gap:** {stage} references ID(s) not present in SRS.md: "
-            f"{', '.join(ids)}"
-        )
-
-    return "\n".join(lines) + "\n"
+    graph = ckg_module.build_graph(product_dir, module_name)
+    return ckg_module.render_traceability_matrix(graph, module_name)
 
 
 def write_provenance(
@@ -124,7 +79,7 @@ def write_provenance(
     module_name: str,
     safety_class: str,
     model: str,
-    stage_log: dict,
+    stage_log: dict[str, Any],
 ) -> None:
     provenance = {
         "pipelineRun": {
@@ -144,5 +99,5 @@ def write_provenance(
         ],
     }
     (product_dir / "evidence" / "run-provenance.json").write_text(
-        json.dumps(provenance, indent=2) + "\n"
+        json.dumps(provenance, indent=2) + "\n", encoding="utf-8"
     )
