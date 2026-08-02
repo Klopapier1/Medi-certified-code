@@ -93,6 +93,9 @@ Done. Evidence package written to products/bmi
 Reminder: nothing here is final until a human completes products/bmi/evidence/review-signoff.md
 ```
 
+A ready-to-run example of this same command, with its input already filled
+in, lives in [`demo/`](demo/) — see [`demo/README.md`](demo/README.md).
+
 ## Input
 
 The pipeline's only input is a `ProductSpec` (`orchestrator/config.py`), populated from CLI flags:
@@ -156,6 +159,8 @@ orchestrator/            the pipeline engine (product-agnostic)
 └── tests/                    framework's own tests (no API key needed)
 
 products/<name>/          one software item's pipeline output (see Output above)
+
+demo/                     ready-to-run example input (see demo/README.md)
 
 docs/
 └── mvp-scope.md            MVP scope, rationale, and open questions
