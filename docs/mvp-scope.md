@@ -1,5 +1,10 @@
 # MVP Scope — AI Orchestration Framework for Certified Medical Software
 
+> **Implementation status:** the framework described here now exists at
+> `orchestrator/` (product-agnostic pipeline engine), with `products/bmi/`
+> as its first pilot output. See the root `README.md` for current status
+> and how to run it. This document remains the scope/rationale reference.
+
 ## 1. Framing (read this first)
 
 No AI system can *grant* medical device certification — that's a regulatory act performed by a notified body / competent authority against a Quality Management System (QMS), based on evidence. What this framework can realistically do is:
